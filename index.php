@@ -73,7 +73,6 @@ class DogecoinRPC {
         return $this->rpcCall('signrawtransactionwithwallet', [$hex]);
     }
 }
-<?php
 // index.php
 //require_once 'DogecoinRPC.php';
 
