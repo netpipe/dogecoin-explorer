@@ -6,6 +6,45 @@ $rpcpassword="dogepass";
 $rpcallowip="127.0.0.1";
 $rpcport="22555";
 
+// --- Rate Limiter Settings ---
+$maxRequests = 100;
+$timeWindow = 60*10; // seconds
+
+$clientIP = $_SERVER['REMOTE_ADDR'];
+$rateFile = sys_get_temp_dir() . "/dogeapi_rate_" . md5($clientIP);
+
+// Load or initialize data
+if (file_exists($rateFile)) {
+    $data = json_decode(file_get_contents($rateFile), true);
+    if (!is_array($data)) $data = [];
+} else {
+    $data = [];
+}
+
+// Clean old timestamps
+$now = time();
+$data = array_filter($data, function ($timestamp) use ($now, $timeWindow) {
+    return ($timestamp + $timeWindow) >= $now;
+});
+
+// Enforce limit
+if (count($data) >= $maxRequests) {
+    header('Content-Type: application/json', true, 429);
+    echo json_encode([
+        'error' => 'Rate limit exceeded',
+        'limit' => $maxRequests,
+        'window' => $timeWindow . ' seconds',
+        'try_again_in' => $data[0] + $timeWindow - $now
+    ]);
+    exit;
+}
+
+// Log this request
+$data[] = $now;
+file_put_contents($rateFile, json_encode($data), LOCK_EX);
+
+
+
 class DogecoinRPC {
     private $user;
     private $password;
