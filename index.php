@@ -1,10 +1,10 @@
 <?php
 
-server=1
-rpcuser=dogeuser
-rpcpassword=dogepass
-rpcallowip=127.0.0.1
-rpcport=22555
+$server="1";
+$rpcuser="dogeuser";
+$rpcpassword="dogepass";
+$rpcallowip="127.0.0.1";
+$rpcport="22555";
 
 class DogecoinRPC {
     private $user;
@@ -81,6 +81,16 @@ header('Content-Type: application/json');
 
 // RPC connection settings (change as needed)
 $rpc = new DogecoinRPC('dogeuser', 'dogepass', '127.0.0.1', 22555);
+// Default welcome page for HTML format
+if (empty($_GET['action']) && empty($_POST['action'])) {
+        echo '<!DOCTYPE html><html><head><title>Welcome to Dogecoin RPC API</title></head><body>';
+        echo '<h1>Welcome to the Dogecoin RPC API!</h1>';
+        echo '<p>Use the <code>action</code> parameter to interact with the API. Example actions: <strong>getbalance</strong>, <strong>validateaddress</strong>, <strong>listunspent</strong>, <strong>sendrawtransaction</strong>.</p>';
+        echo '<p>Example usage: <code>GET /index.php?action=getbalance</code></p>';
+        echo '</body></html>';
+
+    exit; // Stop further execution
+}
 
 // Parse the route from GET or POST
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
