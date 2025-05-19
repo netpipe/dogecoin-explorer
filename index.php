@@ -90,6 +90,10 @@ class DogecoinRPC {
         return $decoded['result'];
     }
 
+public function listTransactions($account = "*", $count = 10, $skip = 0) {
+    return $this->request("listtransactions", [$account, $count, $skip]);
+}
+
     public function getBalance($account = '*') {
         return $this->rpcCall('getbalance', [$account]);
     }
@@ -164,6 +168,17 @@ switch ($action) {
         $result = $rpc->listUnspent(1, 9999999, [$address]);
         echo json_encode($result);
         break;
+    case 'listtransactions':
+    	$account = $_GET['account'] ?? '*';
+    	$count = isset($_GET['count']) ? intval($_GET['count']) : 10;
+    	$skip = isset($_GET['skip']) ? intval($_GET['skip']) : 0;
+
+    	// Enforce reasonable upper limit
+    	if ($count > 1000) $count = 1000;
+
+    	$result = $rpc->listTransactions($account, $count, $skip);
+    	echo json_encode($result);
+    	break;
 
     case 'sendrawtransaction':
         $hex = $_POST['hex'] ?? '';
